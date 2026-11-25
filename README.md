@@ -1,4 +1,4 @@
-# ResQLink 🚨
+# ResQLink
 ### Intelligent Emergency Resource Coordination & Rapid Allocation Platform
 *An Advanced Java Enterprise Disaster Management System (ERMS)*
 
@@ -11,7 +11,7 @@
 
 ---
 
-## 📌 1. Problem Scenario & Context
+##  1. Problem Scenario & Context
 
 During catastrophic events such as **flash floods, urban and wildfires, earthquakes, cyclones, structural collapses, and mass-casualty accidents**, emergency supplies frequently exist across various relief depots, hospitals, military bases, and NGO warehouses—but are **poorly coordinated**.
 
@@ -30,7 +30,7 @@ Critical bottlenecks typically occur:
 
 ---
 
-## 🔄 2. The Core 8-Stage Workflow
+##  2. The Core 8-Stage Workflow
 
 ResQLink strictly implements the required 8-stage disaster life-cycle:
 
@@ -51,7 +51,7 @@ ResQLink strictly implements the required 8-stage disaster life-cycle:
 
 ---
 
-## 🧮 3. Algorithmic Formulations
+##  3. Algorithmic Formulations
 
 ### A. Dynamic Triage Priority Scoring Formula
 
@@ -77,7 +77,7 @@ Where $R = 6371\text{ km}$ and $f_{\text{road}} = 1.25$ accounts for terrestrial
 
 ---
 
-## 🛠️ 4. Advanced Java Tools & Technology Stack
+##  4. Advanced Java Tools & Technology Stack
 
 | Layer | Advanced Java Tool / Technology |
 |---|---|
@@ -94,7 +94,7 @@ Where $R = 6371\text{ km}$ and $f_{\text{road}} = 1.25$ accounts for terrestrial
 
 ---
 
-## 🚀 5. How to Run on Localhost
+##  5. How to Run on Localhost
 
 ### Prerequisites
 - **Java Development Kit (JDK) 21 or 24**
@@ -116,27 +116,27 @@ mvn spring-boot:run
 ```
 
 Once started, the application will be live at:
-- **Main Web Application:** 👉 [http://localhost:8085](http://localhost:8085)
-- **Interactive Swagger / OpenAPI UI:** 👉 [http://localhost:8085/swagger-ui.html](http://localhost:8085/swagger-ui.html)
-- **H2 Database Console:** 👉 [http://localhost:8085/h2-console](http://localhost:8085/h2-console)
+- **Main Web Application:**  [http://localhost:8085](http://localhost:8085)
+- **Interactive Swagger / OpenAPI UI:**  [http://localhost:8085/swagger-ui.html](http://localhost:8085/swagger-ui.html)
+- **H2 Database Console:**  [http://localhost:8085/h2-console](http://localhost:8085/h2-console)
   *(JDBC URL: `jdbc:h2:mem:resqlinkdb`, User: `sa`, Password: empty)*
 
 ---
 
-## 👥 6. Pre-Seeded Demo Accounts (1-Click Fast Login)
+##  6. Pre-Seeded Demo Accounts (1-Click Fast Login)
 
 The login screen provides **1-Click Quick Login** buttons for instant demonstration:
 
 | Role | Username | Password | Intended Role |
 |---|---|---|---|
-| 🛡️ **Incident Coordinator** | `admin` | `password` | Manages crisis command, declares incidents, reviews triage, allocates resources |
-| 🏥 **Relief Organization** | `redcross` | `password` | Manages depot stock (NDRF, Red Cross, Hospitals), replenishes supplies |
-| 🚛 **Logistics Dispatcher** | `driver1` | `password` | Manages transit missions, updates en-route checkpoints, verifies PIN delivery |
-| 👤 **Citizen / Requester** | `citizen1` | `password` | Submits emergency requests, tracks live timeline |
+|  **Incident Coordinator** | `admin` | `password` | Manages crisis command, declares incidents, reviews triage, allocates resources |
+|  **Relief Organization** | `redcross` | `password` | Manages depot stock (NDRF, Red Cross, Hospitals), replenishes supplies |
+|  **Logistics Dispatcher** | `driver1` | `password` | Manages transit missions, updates en-route checkpoints, verifies PIN delivery |
+|  **Citizen / Requester** | `citizen1` | `password` | Submits emergency requests, tracks live timeline |
 
 ---
 
-## 📡 7. REST API Endpoints
+##  7. REST API Endpoints
 
 ResQLink exposes comprehensive REST endpoints for mobile app or external integration:
 
@@ -150,7 +150,7 @@ ResQLink exposes comprehensive REST endpoints for mobile app or external integra
 
 ---
 
-## 🏆 Summary of Key Features
+##  Summary of Key Features
 - **Zero-Setup Localhost Execution:** Runs immediately with embedded H2 + rich mock disaster data.
 - **End-to-End Workflow:** Fully interactive walkthrough from incident declaration to 4-digit PIN delivery verification.
 - **Visual Situational Awareness:** Leaflet OpenStreetMap with danger circles, depot pins, request alerts, and route polylines.
