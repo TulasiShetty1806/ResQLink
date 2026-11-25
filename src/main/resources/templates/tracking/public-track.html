@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Track Aid Status - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container py-4">
+
+        <!-- Search Bar Section -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-7 text-center">
+                <span class="badge bg-danger px-3 py-2 text-uppercase mb-2">Public Citizen Portal</span>
+                <h2 class="fw-bold mb-3">Live Emergency Aid Tracker</h2>
+                <p class="text-muted mb-4">Enter your Request Tracking Code (e.g. <code>REQ-1011-A</code>) or Fleet Transport Number (e.g. <code>TRK-9001</code>) to track relief supplies in real-time.</p>
+
+                <form th:action="@{/tracking}" method="get" class="d-flex gap-2 shadow-sm p-2 bg-white rounded-pill border">
+                    <input type="text" name="code" class="form-control border-0 rounded-pill px-4 shadow-none"
+                           th:value="${request != null ? request.trackingCode : (mission != null ? mission.trackingNumber : '')}"
+                           placeholder="Enter Tracking Code (e.g. REQ-1011-A, TRK-9001)..." required>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">
+                        <i class="bi bi-search me-1"></i> Track
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tracking Results Found -->
+        <div class="row justify-content-center" th:if="${request != null}">
+            <div class="col-lg-9">
+                <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-dark text-white p-4 d-flex flex-wrap justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-danger mb-1" th:text="'Tracking ID: ' + ${request.trackingCode}">REQ-001</span>
+                            <h4 class="fw-bold mb-0" th:text="${request.itemName} + ' (' + ${request.requestedQuantity} + ' ' + ${request.unit} + ')'">Item</h4>
+                        </div>
+                        <div class="text-md-end mt-2 mt-md-0">
+                            <span class="badge" th:classappend="'bg-' + ${request.status.badgeClass} + ' fs-6'" th:text="${request.status.label}">Status</span>
+                            <div class="small text-secondary mt-1">Verification PIN: <strong class="text-warning fs-6" th:text="${request.verificationPin}">1234</strong></div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+
+                        <!-- Interactive Timeline Stepper -->
+                        <div class="tracking-timeline">
+                            <!-- Step 1: Emergency Logged -->
+                            <div class="tracking-step completed">
+                                <div class="step-marker"><i class="bi bi-check-lg"></i></div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">1. Emergency Incident Declared</h6>
+                                    <p class="small text-muted mb-0" th:text="${request.incident.title}">Incident</p>
+                                    <small class="text-muted" th:text="'Epicenter: ' + ${request.incident.locationName}">Location</small>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Request Submitted -->
+                            <div class="tracking-step completed">
+                                <div class="step-marker"><i class="bi bi-check-lg"></i></div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">2. Aid Request Registered</h6>
+                                    <p class="small text-muted mb-0" th:text="'Submitted by ' + ${request.requesterName} + ' for ' + ${request.affectedPeopleCount} + ' people'">Requester</p>
+                                    <small class="text-muted" th:text="'Logged at ' + ${#temporals.format(request.requestedAt, 'dd MMM yyyy, HH:mm')}">Date</small>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Prioritized by AI Triage -->
+                            <div class="tracking-step" th:classappend="${request.priorityScore > 0 ? 'completed' : 'active'}">
+                                <div class="step-marker"><i class="bi bi-check-lg"></i></div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">3. Algorithmic Triage & Prioritization</h6>
+                                    <p class="small text-muted mb-0">Priority Score calculated: <strong class="text-danger" th:text="${request.priorityScore}">90.0</strong> / 100</p>
+                                    <small class="text-muted">Urgency Level: <span th:text="${request.urgency.label}">Urgency</span></small>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 & 5: Resource Matched & Allocated -->
+                            <div class="tracking-step" th:classappend="${!#lists.isEmpty(allocations) ? 'completed' : (request.status.name() == 'PRIORITIZED' ? 'active' : '')}">
+                                <div class="step-marker"><i class="bi bi-boxes"></i></div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">4 & 5. Depot Resources Matched & Allocated</h6>
+                                    <div th:if="${!#lists.isEmpty(allocations)}">
+                                        <div th:each="a : ${allocations}" class="small text-muted">
+                                            <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                            <strong th:text="${a.allocatedQuantity} + ' ' + ${a.resourceItem.unit}">0</strong> reserved from <strong th:text="${a.resourceItem.depotLocationName}">Depot</strong> (<span th:text="${a.resourceItem.organization.name}">Org</span>)
+                                        </div>
+                                    </div>
+                                    <small th:if="${#lists.isEmpty(allocations)}" class="text-muted">Awaiting coordinator allocation from nearest available depots...</small>
+                                </div>
+                            </div>
+
+                            <!-- Step 6: Transport Fleet Dispatched -->
+                            <div class="tracking-step" th:classappend="${mission != null ? (mission.status.name() == 'DELIVERED' ? 'completed' : 'active') : ''}">
+                                <div class="step-marker"><i class="bi bi-truck"></i></div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">6. Logistics Fleet Dispatched</h6>
+                                    <div th:if="${mission != null}">
+                                        <p class="small text-muted mb-0">
+                                            <span class="badge bg-primary me-1" th:text="${mission.transportMode.label}">Mode</span>
+                                            Vehicle: <strong th:text="${mission.vehicleNumber}">Fleet</strong> | Driver: <strong th:text="${mission.driverName}">Driver</strong> (<span th:text="${mission.driverPhone}">Phone</span>)
+                                        </p>
+                                        <small class="text-muted">Route distance: <span th:text="${mission.estimatedDistanceKm}">0</span> km | Status: <strong class="text-primary" th:text="${mission.status.label}">Status</strong></small>
+                                    </div>
+                                    <small th:if="${mission == null}" class="text-muted">Pending logistics vehicle assignment...</small>
+                                </div>
+                            </div>
+
+                            <!-- Step 7: Delivery Handover Verified -->
+                            <div class="tracking-step" th:classappend="${request.status.name() == 'DELIVERED' ? 'completed' : ''}">
+                                <div class="step-marker"><i class="bi bi-shield-check"></i></div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">7 & 8. Delivery Handover & Case Resolution</h6>
+                                    <div th:if="${request.status.name() == 'DELIVERED'}">
+                                        <span class="badge bg-success mb-1">Delivery Confirmed & Verified</span>
+                                        <p class="small text-muted mb-0" th:if="${mission != null && mission.recipientSignatureNotes}" th:text="${mission.recipientSignatureNotes}">Notes</p>
+                                    </div>
+                                    <small th:if="${request.status.name() != 'DELIVERED'}" class="text-muted">Verification required upon arrival using recipient PIN.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Register - ResQLink Network</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header bg-dark text-white p-4 text-center">
+                        <h4 class="fw-bold mb-1">Join the ResQLink Response Network</h4>
+                        <p class="text-secondary small mb-0">Register as a Relief Organization, Logistics Provider, or Citizen</p>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form th:action="@{/register}" method="post">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="username" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="password" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Full Name / Official Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="fullName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" name="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Contact Phone</label>
+                                    <input type="text" class="form-control" name="phone">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Account Role <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="role" required>
+                                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r.displayName}">Role</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Organization / Agency Name</label>
+                                    <input type="text" class="form-control" name="organizationName" placeholder="e.g. Red Cross, NDRF">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mt-4 shadow-sm">
+                                Create Account
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-footer bg-light text-center py-3">
+                        <span class="small text-muted">Already have credentials? <a th:href="@{/login}" class="text-decoration-none fw-bold">Sign In</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

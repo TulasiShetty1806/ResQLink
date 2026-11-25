@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Logistics & Dispatch Dashboard - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-truck text-primary me-2"></i>Logistics & Transport Missions Fleet</h3>
+                <p class="text-muted small mb-0">Driver / Dispatcher: <strong th:text="${user}">driver1</strong> | Real-Time Fleet Status</p>
+            </div>
+            <div>
+                <a th:href="@{/tracking/map}" class="btn btn-outline-primary btn-sm shadow-sm">
+                    <i class="bi bi-map me-1"></i> Interactive Route Map
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Active Transport Dispatches</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mission #</th>
+                            <th>Vehicle & Mode</th>
+                            <th>Driver</th>
+                            <th>Cargo / Supplies</th>
+                            <th>Destination</th>
+                            <th>Est. Distance & Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m : ${missions}">
+                            <td><strong th:text="${m.trackingNumber}">TRK-001</strong></td>
+                            <td>
+                                <div class="fw-semibold" th:text="${m.vehicleNumber}">TN-09-ER</div>
+                                <span class="badge bg-light text-dark border" th:text="${m.transportMode.label}">Mode</span>
+                            </td>
+                            <td>
+                                <div th:text="${m.driverName}">Driver</div>
+                                <small class="text-muted" th:text="${m.driverPhone}">Phone</small>
+                            </td>
+                            <td>
+                                <div class="fw-semibold" th:text="${m.resourceAllocation.resourceItem.name}">Item</div>
+                                <span class="badge bg-info text-dark" th:text="${m.resourceAllocation.allocatedQuantity} + ' ' + ${m.resourceAllocation.resourceItem.unit}">Qty</span>
+                            </td>
+                            <td class="small text-muted" th:text="${m.emergencyRequest.requesterAddress}">Address</td>
+                            <td>
+                                <div><span th:text="${m.estimatedDistanceKm}">0</span> km</div>
+                                <small class="text-muted">~<span th:text="${m.estimatedDurationMinutes}">0</span> mins</small>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="'bg-' + ${m.status.badgeClass}" th:text="${m.status.label}">Status</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/transport/{id}(id=${m.id})}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-pencil-square me-1"></i> Update / Verify
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

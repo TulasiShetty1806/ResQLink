@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Relief Organization Depot Dashboard - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-building text-primary me-2"></i>Relief Organization & Supply Depot Portal</h3>
+                <p class="text-muted small mb-0">Logged in as: <strong th:text="${user}">redcross</strong> | Relief Stock Inventory</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/resources/register}" class="btn btn-primary btn-sm shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Register New Stock
+                </a>
+                <a th:href="@{/tracking/map}" class="btn btn-outline-dark btn-sm shadow-sm">
+                    <i class="bi bi-map me-1"></i> Crisis Map
+                </a>
+            </div>
+        </div>
+
+        <!-- Inventory Summary Card -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card kpi-card p-3">
+                    <span class="text-muted small text-uppercase fw-semibold">Total Stock Items</span>
+                    <h3 class="fw-bold text-primary mb-0" th:text="${#lists.size(resources)}">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card kpi-card p-3">
+                    <span class="text-muted small text-uppercase fw-semibold">Available Units</span>
+                    <h3 class="fw-bold text-success mb-0" th:text="${totalSupplies}">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card kpi-card p-3">
+                    <span class="text-muted small text-uppercase fw-semibold">Active Organizations</span>
+                    <h3 class="fw-bold text-secondary mb-0" th:text="${#lists.size(organizations)}">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Inventory Table -->
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0"><i class="bi bi-boxes text-primary me-2"></i>Registered Depot Supplies</h5>
+                <a th:href="@{/resources/register}" class="btn btn-sm btn-primary">Add Resource</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Resource Code</th>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Depot Location</th>
+                            <th>Total Quantity</th>
+                            <th>Available</th>
+                            <th>Reserved</th>
+                            <th>Restock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="res : ${resources}">
+                            <td><strong th:text="${res.resourceCode}">RES-001</strong></td>
+                            <td>
+                                <div class="fw-semibold" th:text="${res.name}">Item Name</div>
+                                <div class="text-muted small" th:text="${res.organization.name}">Org</div>
+                            </td>
+                            <td><span class="badge bg-light text-dark border" th:text="${res.category.label}">Category</span></td>
+                            <td class="small text-muted" th:text="${res.depotLocationName}">Depot</td>
+                            <td><strong th:text="${res.totalQuantity}">0</strong> <span th:text="${res.unit}">units</span></td>
+                            <td><span class="badge bg-success" th:text="${res.availableQuantity} + ' ' + ${res.unit}">0</span></td>
+                            <td><span class="badge bg-warning text-dark" th:text="${res.reservedQuantity} + ' ' + ${res.unit}">0</span></td>
+                            <td>
+                                <form th:action="@{/resources/{id}/restock(id=${res.id})}" method="post" class="d-flex gap-1">
+                                    <input type="number" name="addedQuantity" class="form-control form-control-sm" style="width: 75px" value="50" min="1" required>
+                                    <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-plus"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

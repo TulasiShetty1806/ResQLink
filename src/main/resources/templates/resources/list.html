@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Resource Inventory - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-boxes text-primary me-2"></i>Relief Supplies & Depot Inventory</h3>
+                <p class="text-muted small mb-0">Total Available Supplies Across Regional Depots: <strong class="text-success" th:text="${totalSupplies}">0</strong> units</p>
+            </div>
+            <div sec:authorize="hasAnyRole('COORDINATOR', 'ORGANIZATION')">
+                <a th:href="@{/resources/register}" class="btn btn-primary fw-bold shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Register New Supplies
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Resource Item</th>
+                            <th>Category</th>
+                            <th>Depot Location & GPS</th>
+                            <th>Organization</th>
+                            <th>Available Stock</th>
+                            <th>Reserved Stock</th>
+                            <th sec:authorize="hasAnyRole('COORDINATOR', 'ORGANIZATION')">Replenish</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${resources}">
+                            <td><strong th:text="${r.resourceCode}">RES-001</strong></td>
+                            <td>
+                                <div class="fw-bold" th:text="${r.name}">Item Name</div>
+                                <div class="small text-muted" th:text="${r.description}">Description</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border" th:text="${r.category.label}">Category</span>
+                            </td>
+                            <td>
+                                <div th:text="${r.depotLocationName}">Depot Name</div>
+                                <div class="small text-muted">(<span th:text="${r.depotLatitude}">0</span>, <span th:text="${r.depotLongitude}">0</span>)</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-dark" th:text="${r.organization.name}">Organization</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success fs-6" th:text="${r.availableQuantity} + ' ' + ${r.unit}">0</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning text-dark fs-6" th:text="${r.reservedQuantity} + ' ' + ${r.unit}">0</span>
+                            </td>
+                            <td sec:authorize="hasAnyRole('COORDINATOR', 'ORGANIZATION')">
+                                <form th:action="@{/resources/{id}/restock(id=${r.id})}" method="post" class="d-flex gap-1">
+                                    <input type="number" name="addedQuantity" class="form-control form-control-sm" style="width: 70px" value="50" min="1" required>
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Restock Stock"><i class="bi bi-plus-lg"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

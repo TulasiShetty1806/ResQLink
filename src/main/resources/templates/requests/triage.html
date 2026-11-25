@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Priority Triage Queue - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="live-pulse danger"></span>
+                    <h3 class="fw-bold mb-0">Algorithmic Priority Triage Queue</h3>
+                </div>
+                <p class="text-muted small mb-0">Unfulfilled requests dynamically ranked by AI priority formula (Severity + Urgency + Victims + Wait time)</p>
+            </div>
+            <form th:action="@{/requests/triage/recalculate}" method="post">
+                <button type="submit" class="btn btn-outline-danger fw-bold shadow-sm">
+                    <i class="bi bi-arrow-repeat me-1"></i> Recalculate Priorities
+                </button>
+            </form>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 110px">Priority Score</th>
+                            <th>Tracking ID</th>
+                            <th>Incident</th>
+                            <th>Resource Demand</th>
+                            <th>Requester / Address</th>
+                            <th>Victims & Conditions</th>
+                            <th>Requested At</th>
+                            <th class="text-end">Allocation Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="req : ${requests}">
+                            <td>
+                                <span class="priority-score-badge"
+                                      th:classappend="${req.priorityScore >= 75 ? 'priority-high' : (req.priorityScore >= 50 ? 'priority-medium' : 'priority-low')}"
+                                      th:text="${req.priorityScore}">90.0</span>
+                            </td>
+                            <td>
+                                <strong th:text="${req.trackingCode}">REQ-001</strong>
+                                <div><span class="badge" th:classappend="'bg-' + ${req.status.badgeClass}" th:text="${req.status.label}">Status</span></div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold" th:text="${req.incident.title}">Incident Title</div>
+                                <span class="badge" th:classappend="'bg-' + ${req.incident.severity.badgeClass}" th:text="${req.incident.severity.label}">CRITICAL</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark" th:text="${req.itemName}">Item</div>
+                                <span class="badge bg-primary" th:text="${req.requestedQuantity} + ' ' + ${req.unit}">Qty</span>
+                                <span class="badge" th:classappend="'bg-' + ${req.urgency.badgeClass}" th:text="${req.urgency.label}">Urgency</span>
+                            </td>
+                            <td>
+                                <div th:text="${req.requesterName}">Name</div>
+                                <div class="small text-muted" th:text="${req.requesterAddress}">Address</div>
+                                <div class="small text-muted"><i class="bi bi-telephone me-1"></i><span th:text="${req.requesterPhone}">Phone</span></div>
+                            </td>
+                            <td>
+                                <div><i class="bi bi-people me-1"></i><strong th:text="${req.affectedPeopleCount}">0</strong> persons</div>
+                                <span th:if="${req.hasInjuredOrInfants}" class="badge bg-danger mt-1">Infants/Injured</span>
+                            </td>
+                            <td class="small text-muted" th:text="${#temporals.format(req.requestedAt, 'dd MMM, HH:mm')}">Time</td>
+                            <td class="text-end">
+                                <a th:href="@{/allocations/recommend/{id}(id=${req.id})}" class="btn btn-danger fw-bold shadow-sm">
+                                    <i class="bi bi-cpu me-1"></i> Find Depots & Allocate
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(requests)}">
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-check2-circle text-success display-4 d-block mb-2"></i>
+                                <h5>Queue Clear</h5>
+                                <p class="mb-0">All active requests have been matched with relief depots and dispatched!</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

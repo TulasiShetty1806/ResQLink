@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>ResQLink - Emergency Resource Coordination Platform</title>
+</head>
+<body>
+<div th:fragment="content">
+
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <div class="d-inline-flex align-items-center gap-2 bg-dark bg-opacity-50 px-3 py-1 rounded-pill mb-3 border border-secondary">
+                        <span class="live-pulse danger"></span>
+                        <span class="small fw-bold text-white text-uppercase tracking-wider">Live Crisis Coordination Active</span>
+                    </div>
+                    <h1 class="display-4 fw-black text-white mb-3">Connecting Crisis With Relief In Seconds</h1>
+                    <p class="lead text-light mb-4">
+                        During floods, fires, earthquakes, accidents and disasters, critical supplies exist but are poorly coordinated.
+                        <strong>ResQLink</strong> bridges coordinators, relief organizations, logistics fleets, and affected citizens through one intelligent allocation platform.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a th:href="@{/requests/create}" class="btn btn-danger btn-lg px-4 shadow">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Submit Emergency Request
+                        </a>
+                        <a th:href="@{/tracking/map}" class="btn btn-outline-light btn-lg px-4">
+                            <i class="bi bi-map-fill me-2"></i> Live Crisis Map
+                        </a>
+                        <a th:href="@{/tracking}" class="btn btn-light btn-lg px-4 text-dark fw-bold">
+                            <i class="bi bi-search me-2"></i> Track Aid Status
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-center mt-4 mt-lg-0">
+                    <div class="card bg-dark text-white p-4 border-0 shadow-lg rounded-4 text-start">
+                        <h5 class="fw-bold text-danger mb-3"><i class="bi bi-lightning-charge-fill me-2"></i>Core Emergency Workflow</h5>
+                        <div class="d-flex flex-column gap-2 small">
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-danger rounded-pill">1</span> <strong>Emergency Declared</strong> (Incident logged with GPS)</div>
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-warning text-dark rounded-pill">2</span> <strong>Request Submitted</strong> (Citizens & field teams report needs)</div>
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-primary rounded-pill">3</span> <strong>Algorithmic Prioritization</strong> (Severity + Urgency score)</div>
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-info text-dark rounded-pill">4</span> <strong>Intelligent Matching</strong> (Haversine proximity + stock)</div>
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-success rounded-pill">5</span> <strong>Resource Allocated</strong> (Depot inventory reserved)</div>
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-primary rounded-pill">6</span> <strong>Logistics Dispatched</strong> (Ambulance, Boat, Truck, Drone)</div>
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-success rounded-pill">7</span> <strong>Delivered & Handover</strong> (Verified via 4-digit PIN)</div>
+                            <div class="d-flex align-items-center gap-2"><span class="badge bg-dark border rounded-pill">8</span> <strong>Real-time Tracking</strong> (Live timeline & GIS tracker)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-time KPI Stats Counter -->
+    <section class="py-5 bg-white border-bottom">
+        <div class="container">
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-5 fw-bold text-danger mb-0" th:text="${metrics.activeIncidents}">0</h2>
+                        <span class="text-muted fw-semibold">Active Incidents</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-5 fw-bold text-primary mb-0" th:text="${metrics.totalRequests}">0</h2>
+                        <span class="text-muted fw-semibold">Aid Requests Processed</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-5 fw-bold text-success mb-0" th:text="${metrics.totalStock}">0</h2>
+                        <span class="text-muted fw-semibold">Available Relief Supplies</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3">
+                        <h2 class="display-5 fw-bold text-warning mb-0" th:text="${metrics.totalPeopleAffected}">0</h2>
+                        <span class="text-muted fw-semibold">Lives Protected & Supported</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Active Emergencies Overview -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1"><i class="bi bi-exclamation-octagon text-danger me-2"></i>Active Emergency Incidents</h3>
+                    <p class="text-muted mb-0">High-priority crisis zones requiring multi-agency resource coordination</p>
+                </div>
+                <a th:href="@{/incidents}" class="btn btn-outline-primary btn-sm">View All Incidents <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4" th:each="inc : ${activeIncidents}">
+                    <div class="card h-100 shadow-sm border-0 rounded-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge" th:classappend="'bg-' + ${inc.severity.badgeClass}" th:text="${inc.severity.label}">CRITICAL</span>
+                                <span class="badge bg-light text-dark border" th:text="${inc.incidentCode}">INC-0001</span>
+                            </div>
+                            <h5 class="fw-bold card-title mb-2" th:text="${inc.title}">Incident Title</h5>
+                            <p class="text-muted small mb-2"><i class="bi bi-geo-alt-fill text-danger me-1"></i> <span th:text="${inc.locationName}">Location</span></p>
+                            <p class="card-text text-secondary small" th:text="${#strings.abbreviate(inc.description, 120)}">Incident summary...</p>
+                        </div>
+                        <div class="card-footer bg-white border-0 pt-0 pb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted"><i class="bi bi-people me-1"></i> ~<span th:text="${inc.affectedPeopleEstimate}">0</span> affected</small>
+                                <a th:href="@{/incidents/{id}(id=${inc.id})}" class="btn btn-sm btn-outline-danger">Coordinate <i class="bi bi-chevron-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8-Step Workflow Showcase -->
+    <section class="py-5 bg-light border-top">
+        <div class="container">
+            <div class="text-center mb-5">
+                <span class="badge bg-primary px-3 py-2 text-uppercase mb-2">Platform Engine</span>
+                <h2 class="fw-bold">How ResQLink Manages Crisis Coordination</h2>
+                <p class="text-muted max-w-600 mx-auto">From the moment disaster strikes to final doorstep delivery confirmation</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">1</div>
+                        <h6 class="fw-bold">Emergency</h6>
+                        <p class="small text-muted mb-0">Disaster logged with epicenter GPS, radius & severity level.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">2</div>
+                        <h6 class="fw-bold">Request</h6>
+                        <p class="small text-muted mb-0">Field volunteers & citizens submit exact item & casualty needs.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">3</div>
+                        <h6 class="fw-bold">Prioritize</h6>
+                        <p class="small text-muted mb-0">Multi-factor engine scores triage by urgency, victims & wait time.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">4</div>
+                        <h6 class="fw-bold">Find Resources</h6>
+                        <p class="small text-muted mb-0">Haversine calculation ranks nearest depots with sufficient inventory.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">5</div>
+                        <h6 class="fw-bold">Allocate</h6>
+                        <p class="small text-muted mb-0">One-click atomic inventory reservation & assignment confirmation.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">6</div>
+                        <h6 class="fw-bold">Transport</h6>
+                        <p class="small text-muted mb-0">Fleet dispatched (Boats, Ambulances, Trucks, Drones) with ETA.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">7</div>
+                        <h6 class="fw-bold">Deliver</h6>
+                        <p class="small text-muted mb-0">On-site handover verified with secure 4-digit recipient PIN.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="workflow-step h-100">
+                        <div class="workflow-number">8</div>
+                        <h6 class="fw-bold">Track</h6>
+                        <p class="small text-muted mb-0">Live timeline updates & interactive GIS map for coordinators.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+</body>
+</html>

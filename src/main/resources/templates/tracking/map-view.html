@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Interactive Disaster GIS Map - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-3">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="live-pulse danger"></span>
+                    <h4 class="fw-bold mb-0">Real-Time Disaster Response GIS Map</h4>
+                </div>
+                <p class="text-muted small mb-0">Visualizing live disaster zones, emergency requests, supply depots, and transit routes</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-2 mt-md-0 small">
+                <span class="badge bg-danger p-2"><i class="bi bi-circle-fill me-1"></i> Incident Danger Zones</span>
+                <span class="badge bg-primary p-2"><i class="bi bi-building me-1"></i> Relief Supply Depots</span>
+                <span class="badge bg-warning text-dark p-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Active Aid Requests</span>
+                <span class="badge bg-success p-2"><i class="bi bi-truck me-1"></i> In-Transit Missions</span>
+            </div>
+        </div>
+
+        <!-- Full Height Map Container -->
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div id="fullEmergencyMap" style="height: 680px; width: 100%;"></div>
+        </div>
+
+    </div>
+
+    <!-- Initialize Map on Load -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const map = initEmergencyMap('fullEmergencyMap', 13.0400, 80.2200, 12);
+            if (map) {
+                loadMapData(map);
+            }
+        });
+    </script>
+</div>
+</body>
+</html>

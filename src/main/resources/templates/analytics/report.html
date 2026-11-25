@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Emergency Analytics & Reporting - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-4">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-graph-up text-primary me-2"></i>Crisis Analytics & Executive Reports</h3>
+                <p class="text-muted small mb-0">System performance metrics, distribution curves, and audit trails</p>
+            </div>
+            <a th:href="@{/analytics/export-summary}" class="btn btn-outline-success fw-bold shadow-sm">
+                <i class="bi bi-download me-1"></i> Export Summary CSV
+            </a>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <span class="text-muted small text-uppercase fw-semibold">Total Incidents</span>
+                    <h3 class="fw-bold text-danger mb-0" th:text="${metrics.totalIncidents}">0</h3>
+                    <small class="text-muted"><span th:text="${metrics.activeIncidents}">0</span> currently active</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <span class="text-muted small text-uppercase fw-semibold">Total Aid Demands</span>
+                    <h3 class="fw-bold text-primary mb-0" th:text="${metrics.totalRequests}">0</h3>
+                    <small class="text-muted"><span th:text="${metrics.deliveredRequests}">0</span> fulfilled and delivered</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <span class="text-muted small text-uppercase fw-semibold">Total Supplies Stocked</span>
+                    <h3 class="fw-bold text-success mb-0" th:text="${metrics.totalStock}">0</h3>
+                    <small class="text-muted">Available across all depots</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <span class="text-muted small text-uppercase fw-semibold">Total Citizens Impacted</span>
+                    <h3 class="fw-bold text-warning mb-0" th:text="${metrics.totalPeopleAffected}">0</h3>
+                    <small class="text-muted">Tracked in requests</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Requests by Resource Category</h5>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-danger me-2"></i>Incidents by Severity Rating</h5>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="severityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Audit Trail Activity -->
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-activity text-success me-2"></i>Comprehensive Audit Trail Log</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Entity Type</th>
+                            <th>Action</th>
+                            <th>Operator</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="log : ${activityLogs}">
+                            <td class="small text-muted" th:text="${#temporals.format(log.timestamp, 'dd MMM yyyy, HH:mm:ss')}">Time</td>
+                            <td><span class="badge bg-secondary" th:text="${log.entityType}">INCIDENT</span></td>
+                            <td><span class="badge bg-light text-dark border" th:text="${log.action}">CREATED</span></td>
+                            <td><strong th:text="${log.performedBy}">admin</strong></td>
+                            <td class="small text-secondary" th:text="${log.details}">Details...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chart.js Initialization -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', () => {
+            const categoryData = /*[[${metrics.categoryCounts}]]*/ {};
+            const severityData = /*[[${metrics.severityCounts}]]*/ {};
+
+            // Category Chart (Doughnut)
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(catCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: ['#dc2626', '#059669', '#0284c7', '#d97706', '#7c3aed', '#0891b2']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Severity Chart (Bar)
+            const sevCtx = document.getElementById('severityChart').getContext('2d');
+            new Chart(sevCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(severityData),
+                    datasets: [{
+                        label: 'Incidents Count',
+                        data: Object.values(severityData),
+                        backgroundColor: ['#dc2626', '#ea580c', '#0284c7', '#64748b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

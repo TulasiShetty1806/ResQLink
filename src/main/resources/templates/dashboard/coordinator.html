@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Incident Commander Dashboard - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-4">
+
+        <!-- Top Title Bar -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="live-pulse danger"></span>
+                    <h3 class="fw-bold mb-0">Crisis Command & Control Center</h3>
+                </div>
+                <p class="text-muted small mb-0">Logged in as Coordinator: <strong th:text="${user}">admin</strong> | Operations Hub Active</p>
+            </div>
+            <div class="d-flex gap-2 mt-3 mt-md-0">
+                <a th:href="@{/incidents/create}" class="btn btn-danger btn-sm shadow-sm">
+                    <i class="bi bi-shield-plus me-1"></i> Declare Incident
+                </a>
+                <a th:href="@{/requests/triage}" class="btn btn-warning btn-sm fw-bold shadow-sm">
+                    <i class="bi bi-diagram-3-fill me-1"></i> Open Triage Queue
+                </a>
+                <a th:href="@{/tracking/map}" class="btn btn-primary btn-sm shadow-sm">
+                    <i class="bi bi-map-fill me-1"></i> GIS Crisis Map
+                </a>
+                <a th:href="@{/analytics}" class="btn btn-dark btn-sm shadow-sm">
+                    <i class="bi bi-graph-up me-1"></i> Analytics
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Metric Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-danger-subtle text-danger me-3"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold">Active Incidents</span>
+                            <h3 class="fw-bold mb-0" th:text="${metrics.activeIncidents}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-warning-subtle text-warning me-3"><i class="bi bi-inbox-fill"></i></div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold">Pending Triage</span>
+                            <h3 class="fw-bold mb-0" th:text="${metrics.pendingTriage}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-primary-subtle text-primary me-3"><i class="bi bi-truck"></i></div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold">In-Transit Fleets</span>
+                            <h3 class="fw-bold mb-0" th:text="${metrics.inTransitRequests}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card kpi-card p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="kpi-icon bg-success-subtle text-success me-3"><i class="bi bi-box-seam-fill"></i></div>
+                        <div>
+                            <span class="text-muted small text-uppercase fw-semibold">Supplies Available</span>
+                            <h3 class="fw-bold mb-0" th:text="${metrics.totalStock}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Split: Urgent Aid Triage Table + Active Missions & Logs -->
+        <div class="row g-4">
+            <!-- Left: Priority Triage Requests requiring allocation -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0 text-danger"><i class="bi bi-lightning-charge-fill me-2"></i>Priority Aid Triage Queue</h5>
+                        <form th:action="@{/requests/triage/recalculate}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Re-Score
+                            </button>
+                        </form>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Priority</th>
+                                    <th>Tracking ID</th>
+                                    <th>Item Needed</th>
+                                    <th>Incident</th>
+                                    <th>Victims</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="req : ${pendingRequests}">
+                                    <td>
+                                        <span class="priority-score-badge"
+                                              th:classappend="${req.priorityScore >= 75 ? 'priority-high' : (req.priorityScore >= 50 ? 'priority-medium' : 'priority-low')}"
+                                              th:text="${req.priorityScore}">85.0</span>
+                                    </td>
+                                    <td>
+                                        <strong th:text="${req.trackingCode}">REQ-001</strong>
+                                        <div class="text-muted small" th:text="${req.requesterName}">Requester</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold" th:text="${req.itemName}">Item</div>
+                                        <div class="text-muted small"><span th:text="${req.requestedQuantity}">0</span> <span th:text="${req.unit}">units</span></div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border" th:text="${req.incident.incidentCode}">INC-001</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${req.affectedPeopleCount} + ' people'">50</span>
+                                        <span th:if="${req.hasInjuredOrInfants}" class="badge bg-danger ms-1">Injured/Infants</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" th:classappend="'bg-' + ${req.status.badgeClass}" th:text="${req.status.label}">Status</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a th:href="@{/allocations/recommend/{id}(id=${req.id})}" class="btn btn-sm btn-danger fw-bold">
+                                            <i class="bi bi-cpu me-1"></i> Match & Allocate
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(pendingRequests)}">
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-1"></i>
+                                        All emergency requests have been prioritized and allocated!
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Active Incidents Table -->
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-exclamation-octagon text-danger me-2"></i>Active Disaster Incidents</h5>
+                        <a th:href="@{/incidents}" class="btn btn-sm btn-outline-primary">Manage Incidents</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Severity</th>
+                                    <th>Location</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="inc : ${activeIncidents}">
+                                    <td><strong th:text="${inc.incidentCode}">INC-001</strong></td>
+                                    <td th:text="${inc.title}">Title</td>
+                                    <td><span class="badge bg-light text-dark border" th:text="${inc.incidentType.label}">FLOOD</span></td>
+                                    <td><span class="badge" th:classappend="'bg-' + ${inc.severity.badgeClass}" th:text="${inc.severity.label}">CRITICAL</span></td>
+                                    <td class="small text-muted" th:text="${inc.locationName}">Location</td>
+                                    <td>
+                                        <a th:href="@{/incidents/{id}(id=${inc.id})}" class="btn btn-sm btn-outline-dark">Details</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Active Transport Missions + Live Audit Activity -->
+            <div class="col-lg-4">
+                <!-- Transport Missions Card -->
+                <div class="card shadow-sm border-0 rounded-3 mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-truck me-2"></i>Fleet Dispatch Missions</h5>
+                        <a th:href="@{/transport}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item p-3" th:each="m : ${recentMissions}">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <strong th:text="${m.trackingNumber}">TRK-001</strong>
+                                <span class="badge" th:classappend="'bg-' + ${m.status.badgeClass}" th:text="${m.status.label}">Status</span>
+                            </div>
+                            <div class="small text-muted mb-1">
+                                <i class="bi bi-box me-1"></i> <span th:text="${m.resourceAllocation.resourceItem.name}">Supplies</span> (<span th:text="${m.resourceAllocation.allocatedQuantity}">0</span> <span th:text="${m.resourceAllocation.resourceItem.unit}">units</span>)
+                            </div>
+                            <div class="small text-muted mb-2">
+                                <i class="bi bi-person me-1"></i> <span th:text="${m.driverName}">Driver</span> | <span th:text="${m.vehicleNumber}">Vehicle</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark border" th:text="${m.transportMode.label}">Mode</span>
+                                <a th:href="@{/transport/{id}(id=${m.id})}" class="btn btn-sm btn-outline-primary py-0">Track</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Audit Stream -->
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-activity text-success me-2"></i>Live Audit Stream</h5>
+                    </div>
+                    <div class="list-group list-group-flush" style="max-height: 380px; overflow-y: auto;">
+                        <div class="list-group-item p-3" th:each="log : ${recentLogs}">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-secondary" th:text="${log.entityType} + ' : ' + ${log.action}">INCIDENT</span>
+                                <small class="text-muted" th:text="${#temporals.format(log.timestamp, 'HH:mm:ss')}">Time</small>
+                            </div>
+                            <p class="small mb-1 text-secondary" th:text="${log.details}">Details...</p>
+                            <small class="text-muted"><i class="bi bi-person me-1"></i> By: <span th:text="${log.performedBy}">admin</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

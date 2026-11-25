@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Transport Mission Details - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container py-4">
+
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-primary fs-6" th:text="${mission.trackingNumber}">TRK-001</span>
+                            <span class="badge" th:classappend="'bg-' + ${mission.status.badgeClass}" th:text="${mission.status.label}">Status</span>
+                            <span class="badge bg-light text-dark border" th:text="${mission.transportMode.label}">Mode</span>
+                        </div>
+                        <h3 class="fw-bold mb-1">
+                            Dispatched to: <span th:text="${mission.emergencyRequest.requesterName}">Requester</span>
+                        </h3>
+                        <p class="text-muted small mb-0"><i class="bi bi-geo-alt-fill text-danger me-1"></i> <span th:text="${mission.emergencyRequest.requesterAddress}">Delivery Address</span></p>
+                    </div>
+
+                    <div class="text-md-end mt-3 mt-md-0">
+                        <span class="badge bg-info-subtle text-dark p-2 border">
+                            <i class="bi bi-truck me-1"></i> <span th:text="${mission.vehicleNumber}">TN-09-ER</span>
+                        </span>
+                        <div class="small text-muted mt-1">Driver: <strong th:text="${mission.driverName}">Driver</strong> (<span th:text="${mission.driverPhone}">Phone</span>)</div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Cargo & Distance Metrics -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <span class="text-muted small">Cargo Carried</span>
+                            <h6 class="fw-bold mb-0 mt-1" th:text="${mission.resourceAllocation.allocatedQuantity} + ' ' + ${mission.resourceAllocation.resourceItem.unit}">Qty</h6>
+                            <small class="text-muted" th:text="${mission.resourceAllocation.resourceItem.name}">Item</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <span class="text-muted small">Route Distance</span>
+                            <h6 class="fw-bold mb-0 mt-1"><span th:text="${mission.estimatedDistanceKm}">0</span> km</h6>
+                            <small class="text-muted">Haversine verified</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <span class="text-muted small">Est. Travel Time</span>
+                            <h6 class="fw-bold mb-0 mt-1">~<span th:text="${mission.estimatedDurationMinutes}">0</span> mins</h6>
+                            <small class="text-muted">Average Speed: <span th:text="${mission.transportMode.averageSpeedKmh}">50</span> km/h</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <span class="text-muted small">Dispatched At</span>
+                            <h6 class="fw-bold mb-0 mt-1" th:text="${#temporals.format(mission.dispatchTime, 'HH:mm (dd MMM)')}">Time</h6>
+                            <small class="text-muted">Live Tracking Active</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Status Update Column -->
+                    <div class="col-md-6" sec:authorize="hasAnyRole('COORDINATOR', 'LOGISTICS')">
+                        <div class="card border rounded-3 p-3">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-1"></i> Update Transit Progression</h6>
+                            <form th:action="@{/transport/{id}/status(id=${mission.id})}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Current Transport Status</label>
+                                    <select class="form-select form-select-sm" name="status">
+                                        <option th:each="s : ${statuses}" th:value="${s}" th:selected="${mission.status == s}" th:text="${s.label}">Status</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Status Notes / Checkpoint Report</label>
+                                    <input type="text" class="form-control form-control-sm" name="statusNotes" placeholder="e.g. Checkpoint 3 cleared, 10 mins to destination">
+                                </div>
+                                <button type="submit" class="btn btn-sm btn-primary fw-bold">Update Transit Status</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Step 7: Delivery Verification with PIN -->
+                    <div class="col-md-6">
+                        <div class="card border-success border-2 rounded-3 p-3 bg-success-subtle bg-opacity-25">
+                            <h6 class="fw-bold text-success mb-2"><i class="bi bi-shield-check me-1"></i> Step 7: Verify Delivery Handover</h6>
+                            <p class="small text-muted mb-3">Upon physical handover of relief supplies at the drop zone, verify with the recipient's secure 4-digit PIN.</p>
+
+                            <div th:if="${mission.status.name() == 'DELIVERED'}" class="alert alert-success mb-0 py-2">
+                                <i class="bi bi-check-circle-fill me-1"></i> Delivery Handover Verified and Closed!
+                                <div class="small mt-1 text-muted" th:if="${mission.recipientSignatureNotes}" th:text="${mission.recipientSignatureNotes}">Notes</div>
+                            </div>
+
+                            <form th:if="${mission.status.name() != 'DELIVERED'}" th:action="@{/transport/{id}/verify(id=${mission.id})}" method="post">
+                                <div class="mb-2">
+                                    <label class="form-label small fw-semibold">Enter Recipient 4-Digit PIN</label>
+                                    <input type="text" name="inputPin" class="form-control form-control-sm text-center fw-bold fs-5 letter-spacing-2"
+                                           placeholder="e.g. 1234" maxlength="6" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Recipient Feedback / Condition Notes</label>
+                                    <input type="text" name="recipientNotes" class="form-control form-control-sm" placeholder="All boxes received in sealed condition.">
+                                </div>
+                                <button type="submit" class="btn btn-success btn-sm fw-bold w-100">
+                                    <i class="bi bi-check-circle me-1"></i> Confirm & Complete Delivery
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

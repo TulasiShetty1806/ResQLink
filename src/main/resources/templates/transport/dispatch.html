@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Dispatch Transport Mission - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header bg-dark text-white p-4">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge bg-primary">Step 6: Transport Dispatch</span>
+                        </div>
+                        <h4 class="fw-bold mb-1"><i class="bi bi-truck text-primary me-2"></i>Dispatch Logistics Fleet</h4>
+                        <p class="text-secondary small mb-0">Assign vehicle, driver, and transit mode for verified emergency supplies</p>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Allocation Summary Box -->
+                        <div class="bg-light p-3 rounded-3 mb-4 border">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block">Allocated Relief Item</small>
+                                    <h5 class="fw-bold mb-0 text-dark">
+                                        <span th:text="${allocation.allocatedQuantity}">0</span>
+                                        <span th:text="${allocation.resourceItem.unit}">units</span> of
+                                        <span th:text="${allocation.resourceItem.name}">Item</span>
+                                    </h5>
+                                    <small class="text-muted" th:text="${allocation.resourceItem.organization.name}">Org</small>
+                                </div>
+                                <div class="col-md-6 mt-2 mt-md-0">
+                                    <small class="text-muted d-block">Origin & Destination</small>
+                                    <div class="small"><strong>From:</strong> <span th:text="${allocation.resourceItem.depotLocationName}">Depot</span></div>
+                                    <div class="small"><strong>To:</strong> <span th:text="${allocation.emergencyRequest.requesterAddress}">Address</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form th:action="@{/transport/dispatch}" method="post">
+                            <input type="hidden" name="allocationId" th:value="${allocation.id}">
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Transport Mode <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="transportMode" required>
+                                        <option th:each="m : ${transportModes}" th:value="${m}" th:text="${m.label}">Mode</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Vehicle / Vessel / Fleet # <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="vehicleNumber" placeholder="e.g. TN-09-ER-5521 or BOAT-NDRF-07" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Assigned Driver / Pilot Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="driverName" placeholder="Full name of driver" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Driver Mobile Phone <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="driverPhone" placeholder="+91-XXXXX-XXXXX" required>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Route & Dispatch Instructions</label>
+                                    <textarea class="form-control" name="routeNotes" rows="3" placeholder="Safe transit corridor, roadblocks to avoid, flood water height clearance..."></textarea>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold mt-4 shadow-sm">
+                                <i class="bi bi-send-fill me-2"></i> Launch & Dispatch Transport Mission
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

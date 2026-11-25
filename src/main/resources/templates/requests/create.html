@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Submit Emergency Aid Request - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header bg-danger text-white p-4">
+                        <h4 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Emergency Aid & Relief Request</h4>
+                        <p class="text-white-50 small mb-0">Our AI triage engine calculates urgency and matches nearest relief depots automatically</p>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form th:action="@{/requests/create}" method="post">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Emergency Incident Linked <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="incidentId" required>
+                                        <option th:each="inc : ${incidents}" th:value="${inc.id}"
+                                                th:selected="${selectedIncidentId != null && selectedIncidentId == inc.id}"
+                                                th:text="${inc.incidentCode} + ' - ' + ${inc.title}">Incident</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Resource Category <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="category" required>
+                                        <option th:each="c : ${categories}" th:value="${c}" th:text="${c.label}">Category</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Specific Item Required <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="itemName" placeholder="e.g. Drinking Water Cans, Rescue Boats" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Quantity Needed <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" name="requestedQuantity" value="10" min="1" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Unit of Measurement <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="unit" value="units" placeholder="e.g. kits, liters, cans, boxes" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Urgency Level <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="urgency" required>
+                                        <option th:each="u : ${urgencies}" th:value="${u}" th:text="${u.label}">Urgency</option>
+                                    </select>
+                                </div>
+
+                                <hr class="my-3">
+                                <h6 class="fw-bold text-dark mb-2">Requester & Location Information</h6>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Requester Name / Contact Person <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="requesterName" placeholder="Full name" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Contact Phone Number <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="requesterPhone" placeholder="+91-XXXXX-XXXXX" required>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Exact Delivery / Relief Drop Address <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="requesterAddress" placeholder="Street, landmark, floor, or staging post" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Delivery Latitude <span class="text-danger">*</span></label>
+                                    <input type="number" step="any" class="form-control" name="deliveryLatitude" value="12.9750" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Delivery Longitude <span class="text-danger">*</span></label>
+                                    <input type="number" step="any" class="form-control" name="deliveryLongitude" value="80.2210" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Number of Trapped / Affected People</label>
+                                    <input type="number" class="form-control" name="affectedPeopleCount" value="5" min="1">
+                                </div>
+
+                                <div class="col-md-6 d-flex align-items-center mt-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="hasInjuredOrInfants" id="injuredCheck" value="true">
+                                        <label class="form-check-label fw-semibold text-danger" for="injuredCheck">
+                                            Includes injured victims, elderly, or infants (+15 Priority boost)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Special Ground Instructions / Hazards</label>
+                                    <textarea class="form-control" name="specialInstructions" rows="2" placeholder="e.g. Roads flooded; access only possible via north bridge or inflatable boats."></textarea>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-danger btn-lg w-100 py-3 fw-bold mt-4 shadow">
+                                <i class="bi bi-send-fill me-2"></i> Submit Urgent Request to ResQLink
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Intelligent Allocation Recommendation - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container py-4">
+
+        <!-- Emergency Request Context Card -->
+        <div class="card shadow-sm border-0 rounded-4 mb-4 bg-white">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <div>
+                        <span class="badge bg-danger mb-2">Target Emergency Aid Request</span>
+                        <h3 class="fw-bold mb-1" th:text="${request.itemName} + ' - ' + ${request.requestedQuantity} + ' ' + ${request.unit}">Item</h3>
+                        <p class="text-muted small mb-0"><i class="bi bi-geo-alt-fill text-danger me-1"></i> <span th:text="${request.requesterAddress}">Address</span> (Lat: <span th:text="${request.deliveryLatitude}">0</span>, Lon: <span th:text="${request.deliveryLongitude}">0</span>)</p>
+                    </div>
+                    <div class="text-md-end mt-2 mt-md-0">
+                        <span class="priority-score-badge priority-high fs-5">Priority: <strong th:text="${request.priorityScore}">90.0</strong></span>
+                        <div class="small text-muted mt-1"><i class="bi bi-people me-1"></i> <span th:text="${request.affectedPeopleCount}">0</span> people affected</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intelligent Recommendation Banner -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h4 class="fw-bold mb-1"><i class="bi bi-cpu text-primary me-2"></i>Smart Supply Allocation Engine</h4>
+                <p class="text-muted small mb-0">Candidate depots ranked by Haversine proximity, available stock sufficiency, and transit duration</p>
+            </div>
+            <span class="badge bg-primary-subtle text-primary border border-primary px-3 py-2">
+                <i class="bi bi-check-circle-fill me-1"></i> <span th:text="${#lists.size(candidates)}">0</span> Candidate Depots Evaluated
+            </span>
+        </div>
+
+        <!-- Candidates List -->
+        <div class="row g-4 mb-4">
+            <div class="col-12" th:each="c, iterStat : ${candidates}">
+                <div class="card candidate-card p-4 shadow-sm" th:classappend="${iterStat.index == 0 ? 'top-match' : ''}">
+                    <div class="row align-items-center">
+                        <div class="col-md-5">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span th:if="${iterStat.index == 0}" class="badge bg-success"><i class="bi bi-star-fill me-1"></i> #1 Recommended Match</span>
+                                <span class="badge bg-light text-dark border" th:text="${c.resourceItem.resourceCode}">RES-001</span>
+                            </div>
+                            <h5 class="fw-bold mb-1" th:text="${c.resourceItem.name}">Item Name</h5>
+                            <div class="text-muted small mb-1"><i class="bi bi-building me-1"></i> <span th:text="${c.resourceItem.organization.name}">Organization</span></div>
+                            <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i> <span th:text="${c.resourceItem.depotLocationName}">Depot</span></div>
+                        </div>
+
+                        <div class="col-md-4 my-3 my-md-0">
+                            <div class="row text-center g-2">
+                                <div class="col-4">
+                                    <div class="p-2 bg-light rounded-3">
+                                        <small class="text-muted d-block">Distance</small>
+                                        <strong class="text-primary"><span th:text="${c.distanceKm}">0</span> km</strong>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 bg-light rounded-3">
+                                        <small class="text-muted d-block">Est. Transit</small>
+                                        <strong class="text-dark">~<span th:text="${c.estimatedTransitMinutes}">0</span> min</strong>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 bg-light rounded-3">
+                                        <small class="text-muted d-block">Available</small>
+                                        <strong class="text-success" th:text="${c.resourceItem.availableQuantity}">0</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-center">
+                                <span class="small fw-semibold text-muted">Recommendation Match Score:</span>
+                                <div class="progress mt-1" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         th:style="'width: ' + ${c.matchScore} + '%'"></div>
+                                </div>
+                                <small class="fw-bold text-success" th:text="${c.matchScore} + ' / 100'">95 / 100</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 text-md-end">
+                            <form th:action="@{/allocations/allocate}" method="post">
+                                <input type="hidden" name="requestId" th:value="${request.id}">
+                                <input type="hidden" name="resourceItemId" th:value="${c.resourceItem.id}">
+                                <div class="mb-2">
+                                    <label class="form-label small text-muted mb-1">Allocate Quantity</label>
+                                    <input type="number" name="allocatedQuantity" class="form-control form-control-sm text-center fw-bold"
+                                           th:value="${c.suggestedQuantity}" th:max="${c.resourceItem.availableQuantity}" min="1" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger fw-bold w-100 shadow-sm">
+                                    <i class="bi bi-check-lg me-1"></i> Confirm & Allocate
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(candidates)}">
+                <i class="bi bi-inbox text-muted display-4 d-block mb-2"></i>
+                <h5>No Available Resources In This Category</h5>
+                <p class="text-muted">Depot warehouses currently have zero available stock for category: <strong th:text="${request.category.label}">Category</strong>.</p>
+                <a th:href="@{/resources/register}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Register New Stock</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

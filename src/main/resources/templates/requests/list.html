@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Emergency Aid Requests - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container-fluid px-4 py-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-inbox-fill text-danger me-2"></i>Emergency Aid Requests</h3>
+                <p class="text-muted small mb-0">Demands submitted by citizens, volunteer corps, and hospitals</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/requests/create}" class="btn btn-danger fw-bold shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> New Aid Request
+                </a>
+                <a th:href="@{/requests/triage}" sec:authorize="hasRole('COORDINATOR')" class="btn btn-warning fw-bold shadow-sm">
+                    <i class="bi bi-diagram-3-fill me-1"></i> Triage Queue
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Priority</th>
+                            <th>Tracking Code</th>
+                            <th>Incident</th>
+                            <th>Supplies Requested</th>
+                            <th>Urgency</th>
+                            <th>Delivery Location</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="req : ${requests}">
+                            <td>
+                                <span class="priority-score-badge"
+                                      th:classappend="${req.priorityScore >= 75 ? 'priority-high' : (req.priorityScore >= 50 ? 'priority-medium' : 'priority-low')}"
+                                      th:text="${req.priorityScore}">0.0</span>
+                            </td>
+                            <td>
+                                <strong th:text="${req.trackingCode}">REQ-001</strong>
+                                <div class="small text-muted" th:text="${req.requesterName}">Requester</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border" th:text="${req.incident.incidentCode}">INC-001</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold" th:text="${req.itemName}">Item</div>
+                                <div class="text-muted small"><span th:text="${req.requestedQuantity}">0</span> <span th:text="${req.unit}">units</span></div>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="'bg-' + ${req.urgency.badgeClass}" th:text="${req.urgency.label}">Urgency</span>
+                            </td>
+                            <td class="small text-muted" th:text="${req.requesterAddress}">Address</td>
+                            <td>
+                                <span class="badge" th:classappend="'bg-' + ${req.status.badgeClass}" th:text="${req.status.label}">Status</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/tracking/{code}(code=${req.trackingCode})}" class="btn btn-sm btn-outline-primary">Track</a>
+                                <a th:href="@{/allocations/recommend/{id}(id=${req.id})}" sec:authorize="hasRole('COORDINATOR')" class="btn btn-sm btn-danger ms-1">Allocate</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+package com.resqlink.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "audit_logs")
+public class AuditLog {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 50)
+    private String entityType; // INCIDENT, REQUEST, ALLOCATION, TRANSPORT, RESOURCE
+
+    @Column(nullable = false)
+    private Long entityId;
+
+    @Column(nullable = false, length = 50)
+    private String action; // CREATED, UPDATED, PRIORITIZED, ALLOCATED, DISPATCHED, DELIVERED
+
+    @Column(length = 100)
+    private String performedBy;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime timestamp = LocalDateTime.now();
+
+    @Column(columnDefinition = "TEXT")
+    private String details;
+
+    public AuditLog() {}
+
+    public AuditLog(String entityType, Long entityId, String action, String performedBy, String details) {
+        this.entityType = entityType;
+        this.entityId = entityId;
+        this.action = action;
+        this.performedBy = performedBy;
+        this.details = details;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
+
+    public Long getEntityId() { return entityId; }
+    public void setEntityId(Long entityId) { this.entityId = entityId; }
+
+    public String getAction() { return action; }
+    public void setAction(String action) { this.action = action; }
+
+    public String getPerformedBy() { return performedBy; }
+    public void setPerformedBy(String performedBy) { this.performedBy = performedBy; }
+
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+    public String getDetails() { return details; }
+    public void setDetails(String details) { this.details = details; }
+}

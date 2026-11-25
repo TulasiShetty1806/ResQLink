@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Request Details - ResQLink</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container py-4">
+
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="priority-score-badge"
+                                  th:classappend="${request.priorityScore >= 75 ? 'priority-high' : (request.priorityScore >= 50 ? 'priority-medium' : 'priority-low')}">
+                                Priority Score: <strong th:text="${request.priorityScore}">0.0</strong>
+                            </span>
+                            <span class="badge" th:classappend="'bg-' + ${request.status.badgeClass}" th:text="${request.status.label}">Status</span>
+                            <span class="badge bg-light text-dark border" th:text="${request.trackingCode}">REQ-001</span>
+                        </div>
+                        <h2 class="fw-bold mb-1" th:text="${request.itemName} + ' (' + ${request.requestedQuantity} + ' ' + ${request.unit} + ')'">Item</h2>
+                        <p class="text-muted mb-0"><i class="bi bi-geo-alt-fill text-danger me-1"></i> <span th:text="${request.requesterAddress}">Address</span></p>
+                    </div>
+
+                    <div sec:authorize="hasRole('COORDINATOR')" class="d-flex gap-2">
+                        <a th:href="@{/allocations/recommend/{id}(id=${request.id})}" class="btn btn-danger fw-bold">
+                            <i class="bi bi-cpu me-1"></i> Match & Allocate
+                        </a>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small">Incident Linked</span>
+                            <h6 class="fw-bold mb-0 mt-1" th:text="${request.incident.title}">Incident</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small">Requester Contact</span>
+                            <h6 class="fw-bold mb-0 mt-1" th:text="${request.requesterName}">Name</h6>
+                            <small class="text-muted" th:text="${request.requesterPhone}">Phone</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small">Affected Victims</span>
+                            <h6 class="fw-bold mb-0 mt-1"><span th:text="${request.affectedPeopleCount}">0</span> people</h6>
+                            <span th:if="${request.hasInjuredOrInfants}" class="badge bg-danger">Injured/Infants</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="text-muted small">Delivery Verification PIN</span>
+                            <h6 class="fw-bold mb-0 mt-1 text-primary fs-5" th:text="${request.verificationPin}">1234</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3" th:if="${request.specialInstructions}">
+                    <h6 class="fw-bold">Special Ground Instructions:</h6>
+                    <p class="text-secondary" th:text="${request.specialInstructions}">Instructions...</p>
+                </div>
+
+                <a th:href="@{/tracking/{code}(code=${request.trackingCode})}" class="btn btn-outline-primary">
+                    <i class="bi bi-search me-1"></i> View Live Tracking Timeline
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

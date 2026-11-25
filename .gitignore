@@ -1,0 +1,241 @@
+# ============================================================
+# ResQLink – Intelligent Emergency Resource Coordination
+# & Rapid Allocation Platform
+# Production-conscious .gitignore for Java / Spring Boot / Maven
+# ============================================================
+
+# ------------------------------------------------------------
+# Maven build output and Java compiled artifacts
+# ------------------------------------------------------------
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven release/plugin temporary files
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# ------------------------------------------------------------
+# IDE / editor workspace-specific files
+# IntelliJ IDEA, Eclipse, VS Code
+# ------------------------------------------------------------
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+bin/
+
+# VS Code (workspace-specific)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+!.vscode/tasks.example.json
+!.vscode/launch.example.json
+
+# NetBeans (optional IDE support)
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# ------------------------------------------------------------
+# Operating system / temporary files
+# Windows, macOS, Linux
+# ------------------------------------------------------------
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.nfs*
+.directory
+
+# General temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.orig
+*.rej
+
+# ------------------------------------------------------------
+# Logs, crash dumps, diagnostics, and runtime temp files
+# ------------------------------------------------------------
+logs/
+*.log
+*.log.*
+*.out
+*.pid
+*.seed
+hs_err_pid*
+replay_pid*
+javacore.*
+heapdump*.hprof
+*.hprof
+*.dump
+*.jfr
+
+# Spring Boot / application runtime temp
+tmp/
+temp/
+.run/
+
+# ------------------------------------------------------------
+# Local databases, H2 files, and database backups
+# ------------------------------------------------------------
+# H2 database files
+*.mv.db
+*.trace.db
+*.h2.db
+*.lock.db
+
+# Local SQLite/embedded DB files (if used for local testing)
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Database dumps/backups
+*.sql.gz
+*.dump.gz
+*.bak.sql
+*.backup
+*.dbbackup
+/db-data/
+/data/
+/local-db/
+
+# ------------------------------------------------------------
+# Secrets, environment files, and local-only configuration
+# Keep safe examples/templates committed
+# ------------------------------------------------------------
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Local/secret Spring configuration overrides
+application-local.properties
+application-local.yml
+application-local.yaml
+application-dev-local.properties
+application-dev-local.yml
+application-dev-local.yaml
+application-secret*.properties
+application-secret*.yml
+application-secret*.yaml
+application-*.local.properties
+application-*.local.yml
+application-*.local.yaml
+
+# Common credential/key files
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.truststore
+secrets/
+credentials/
+*.credentials
+*.secret
+
+# Preserve safe sample/example configuration files
+!application*.example.properties
+!application*.example.yml
+!application*.example.yaml
+!application*.sample.properties
+!application*.sample.yml
+!application*.sample.yaml
+!config/*.example.*
+!config/*.sample.*
+!**/src/**/application*.properties
+!**/src/**/application*.yml
+!**/src/**/application*.yaml
+
+# ------------------------------------------------------------
+# Test / coverage / report artifacts (generated)
+# ------------------------------------------------------------
+coverage/
+.jacoco/
+*.exec
+test-output/
+surefire-reports-local/
+
+# ------------------------------------------------------------
+# Node/frontend tooling (only if accidentally added locally)
+# Source JS/CSS in src/main/resources/static should remain tracked
+# ------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------
+# Keep important project files tracked (do NOT ignore)
+# ------------------------------------------------------------
+!pom.xml
+!mvnw
+!mvnw.cmd
+!.mvn/
+!.mvn/wrapper/**
+!src/
+!docs/
+!README.md
+!HELP.md
+!LICENSE
+!LICENSE.*
+!.gitignore
+!.gitattributes
+!*.md
